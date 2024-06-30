@@ -50,6 +50,7 @@ const campsiteSchema = new Schema({
         default: false
     }, 
     comments: [commentSchema],
+}, {
     timestamps: true
 });
 
