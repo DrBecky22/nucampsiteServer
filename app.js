@@ -1,7 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
+// var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
@@ -36,7 +36,7 @@ app.use(session({
   secret: 'lottalongstringofcharacters',
   saveUninitialized: false,
   resave: false,
-  store: new FileStore()
+  store: new FileStore()   //stores the session information in the server's file system - hard drive
 }));
 
 function auth(req, res, next) {
@@ -64,7 +64,7 @@ function auth(req, res, next) {
         return next(err);
     }
   } else {
-    if (req.ession.user === 'admin') {     //if the signed cookie value is admin, then the user is authenticated and the request is passed to the next middleware function
+    if (req.session.user === 'admin') {     //if the signed cookie value is admin, then the user is authenticated and the request is passed to the next middleware function
       return next();
     } else {
       const err = new Error('You are not authenticated!');
