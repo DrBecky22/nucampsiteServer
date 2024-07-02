@@ -29,7 +29,7 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('lottalongstringofcharacters')); //provide a secret key to sign the cookie
+// app.use(cookieParser('lottalongstringofcharacters')); //provide a secret key to sign the cookie
 
 app.use(session({
   name: 'session-id',
