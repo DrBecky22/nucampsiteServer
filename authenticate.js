@@ -4,7 +4,6 @@ const User = require('./models/user');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
-
 const config = require('./config.js');
 const { default: mongoose } = require('mongoose');
 
@@ -48,5 +47,5 @@ exports.verifyAdmin = (req, res, next) => {
       err.status = 403;
       return next(err);
   }
-
 }
+

@@ -17,7 +17,9 @@ campsiteRouter.route('/')
         res.setHeader('Content-Type', 'application/json');
         res.json(campsites);
     })
-    .catch(err => next(err));
+    .catch(err => {
+        next(err);
+    });
 })
 .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
     Campsite.create(req.body)
@@ -27,7 +29,9 @@ campsiteRouter.route('/')
         res.setHeader('Content-Type', 'application/json');
         res.json(campsite);
     })
-    .catch(err => next(err));
+    .catch(err => {
+        next(err);
+    });
 })
 .put(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
@@ -40,7 +44,9 @@ campsiteRouter.route('/')
         res.setHeader('Content-Type', 'application/json');
         res.json(response);
     })
-    .catch(err => next(err));
+    .catch(err => {
+        next(err);
+    });
 });
 
 ////////////////////////////////////////////
@@ -178,27 +184,37 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     })
     .catch(err => next(err));
 })
+
 .post(authenticate.verifyUser, (req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`);
 })
+
 .put(authenticate.verifyUser, (req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite && campsite.comments.id(req.params.commentId)) {
-            if (req.body.rating) {
-                campsite.comments.id(req.params.commentId).rating = req.body.rating;
+        const comment = campsites.comments.id(req.params.commentId);   //this isolates the comment that the user is trying to edit
+        if (campsite && comment) {                   //this checks if the campsite and comment exist
+            if (req.user._id.equals(comment.author._id)) {   //this is the line that checks if the comment author matches the logged in user
+                if (req.body.rating) {
+                    campsite.comments.id(req.params.commentId).rating = req.body.rating;
+                }
+                if (req.body.text) {
+                    campsite.comments.id(req.params.commentId).text = req.body.text;
+                }
+                campsite.save()
+                .then(campsite => {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(campsite);
+                })
+                .catch(err => next(err));
+            } else if (!campsite) {
+                err = new Error(`You are not authorized to edit this comment`);
+                err.status = 403;
+                return next(err);
             }
-            if (req.body.text) {
-                campsite.comments.id(req.params.commentId).text = req.body.text;
-            }
-            campsite.save()
-            .then(campsite => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(campsite);
-            })
-            .catch(err => next(err));
+            //seem like this line should have curly bracer and parenthesis, but that breaks it more
         } else if (!campsite) {
             err = new Error(`Campsite ${req.params.campsiteId} not found`);
             err.status = 404;
@@ -211,28 +227,36 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     })
     .catch(err => next(err));
 })
+
 .delete(authenticate.verifyUser, (req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        if (campsite && campsite.comments.id(req.params.commentId)) {
-            campsite.comments.id(req.params.commentId).deleteOne();
-            campsite.save()
-            .then(campsite => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(campsite);
-            })
-            .catch(err => next(err));
-        } else if (!campsite) {
-            err = new Error(`Campsite ${req.params.campsiteId} not found`);
-            err.status = 404;
-            return next(err);
-        } else {
-            err = new Error(`Comment ${req.params.commentId} not found`);
-            err.status = 404;
-            return next(err);
-        }
-    })
+        const comment = campsites.comments.id(req.params.commentId); 
+            if (campsite && comment) {
+                if (req.user._id.equals(comment.author._id)) {
+                    comment.deleteOne();
+                    campsite.save()
+                    .then(campsite => {
+                        res.statusCode = 200;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json(campsite);
+                    })
+                    .catch(err => next(err));
+                } else if (!campsite) {
+                    err = new Error(`You are not authorized to edit this comment`);
+                    err.status = 403;
+                    return next(err);
+                } else if (!campsite) {
+                    err = new Error(`Campsite ${req.params.campsiteId} not found`);
+                    err.status = 404;
+                    return next(err);
+                
+            } else {
+                err = new Error(`Comment ${req.params.commentId} not found`);
+                err.status = 404;
+                return next(err);
+            }
+        })
     .catch(err => next(err));
 });
 
