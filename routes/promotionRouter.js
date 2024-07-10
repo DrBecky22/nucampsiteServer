@@ -2,13 +2,14 @@ const express = require('express');
 const Promotion = require('../models/promotion');
 const campsiteRouter = express.Router();
 const authenticate = require('../authenticate');
-
+const cors = require('./cors');
 
 ////////////////////////////////////////////
 ////  Promotion Routes
 ////////////////////////////////////////////
 
 campsiteRouter.route('/')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get((req, res, next) => {
     Promotion.find()
     .then(promotions => {
@@ -47,6 +48,7 @@ campsiteRouter.route('/')
 ////////////////////////////////////////////
 
 campsiteRouter.route('/:promotionId')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get((req, res, next) => {
     Promotion.findById(req.params.promotionId)
     .then(promotion => {

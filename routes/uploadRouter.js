@@ -4,6 +4,7 @@
 const express = require('express');
 const authenticate = require('../authenticate');
 const multer = require('multer');
+const cors = require('./cors');
 
 //// customizes the storage engine ////
 const storage = multer.diskStorage({
@@ -32,6 +33,7 @@ const uploadRouter = express.Router();
 
 //// below configures this upload router to handle the various http requests - why do we need to verify user/admin to fire off error messages? ////
 uploadRouter.route('/')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
     res.end('GET operation not supported on /imageUpload');

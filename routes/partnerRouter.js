@@ -2,6 +2,7 @@ const express = require('express');
 const Partner = require('../models/partner');
 const partnerRouter = express.Router();
 const authenticate = require('../authenticate');
+const cors = require('./cors');
 
 
 ////////////////////////////////////////////
@@ -9,6 +10,7 @@ const authenticate = require('../authenticate');
 ////////////////////////////////////////////
 
 partnerRouter.route('/')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get((req, res, next) => {
     Partner.find()
     .then(partners => {
@@ -51,6 +53,7 @@ partnerRouter.route('/')
 ////////////////////////////////////////////
 
 partnerRouter.route('/:partnerId')
+.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
 .get((req, res, next) => {
     Partner.findById(req.params.partnerId)
     .then(partner => {
