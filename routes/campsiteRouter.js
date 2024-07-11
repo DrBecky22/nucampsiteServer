@@ -37,8 +37,9 @@ campsiteRouter.route('/')
     });
 })
 
-.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain');
     res.end('PUT operation not supported on /campsites');
 })
 
@@ -144,7 +145,7 @@ campsiteRouter.route('/:campsiteId/comments')
     .catch(err => next(err));
 })
 
-.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => {
+.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
     res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`);
 })
@@ -203,12 +204,13 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
 .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
     res.end(`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`);
-}) //this error msg can't be right, why would we have to verify user/ admin just to say 'you cannot pass"?
+}) //this error msg can't be right, why would we have to verify user/ admin just to say 'you cannot pass"? There is no reason to verify people, the reason you can't post is that this is an individual comment, so you can't post a comment to a comment
 
 .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
+    //why doesn't this one need a verifyAdmin?  You don't need it b/c this is to match the author to the user for editing their own comment. BUT you should probs let Admins go in and edit comments
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        const comment = campsites.comments.id(req.params.commentId);   //this isolates the comment that the user is trying to edit
+        const comment = campsite.comments.id(req.params.commentId);   //this isolates the comment that the user is trying to edit
         if (campsite && comment) {                   //this checks if the campsite and comment exist
             if (req.user._id.equals(comment.author._id)) {   //this is the line that checks if the comment author matches the logged in user
                 if (req.body.rating) {

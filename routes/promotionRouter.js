@@ -86,4 +86,4 @@ campsiteRouter.route('/:promotionId')
     .catch(err => next(err));
 });
 
-module.exports = campsiteRouter;
+module.exports = promotionRouter;
