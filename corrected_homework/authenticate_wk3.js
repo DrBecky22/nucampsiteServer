@@ -1,13 +1,14 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const FacebookTokenStrategy = require('passport-facebook-token');
 const User = require('./models/user');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken'); // used to create, sign, and verify tokens
-const config = require('./config.js');
-const { default: mongoose } = require('mongoose');
 
+const config = require('./config.js');
+////////// NOTE: Not sure what this is. We don't need to bring Mongoose in here.
+/*  const { default: mongoose } = require('mongoose');  */
+////////// END NOTE
 
 exports.local = passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
@@ -51,30 +52,3 @@ exports.verifyAdmin = (req, res, next) => {
   }
 }
 
-exports.facebookPassport = passport.use(
-  new FacebookTokenStrategy(
-    {
-      clientID: config.facebook.clientId,
-      clientSecret: config.facebook.clientSecret
-    },
-    (accessToken, refreshToken, profile, done) => {
-      User.findOne({ facebookId: profile.id }).then((user) => {
-        if (!user) {
-          return done(null, user);
-        } else {
-          user = new User({ username: profile.displayName });
-          user.facebookId = profile.id;
-          user.firstname = profile.name.givenName;
-          user.lastname = profile.name.familyName;
-          user.save((err, user) => {
-            if (!user) {
-              return done(null, user);
-            } else {
-              return done(null, user);
-            }
-          });
-        }
-      }).catch((err) => done(err, false));
-    }
-  )
-);

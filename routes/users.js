@@ -5,8 +5,9 @@ const authenticate = require('../authenticate');
 const router = express.Router();
 const cors = require('./cors');
 
-/* GET users listing. */
 //why is this structured differently than the other routers?  why is there a next parameter?
+
+/* GET users listing. */
 router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, function(req, res, next) {
     User.find()
     .then(users => {
@@ -15,6 +16,15 @@ router.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.veri
         res.json(users);
     })
     .catch(err => next(err));
+});
+
+router.get('/facebook/token', passport.authenticate('facebook-token'), (req, res) => {
+    if (req.user) {
+        const token = authenticate.getToken({_id: req.user._id});
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({success: true, token: token, status: 'You are successfully logged in!'});
+    }
 });
 
 router.post('/signup', cors.corsWithOptions, (req, res) => {
