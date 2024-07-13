@@ -15,7 +15,7 @@ partnerRouter.route('/')
     Partner.find()
     .then(partners => {
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Type', 'application/json');
     res.json(partners);
 })
 .catch(err => next(err));
@@ -34,6 +34,7 @@ partnerRouter.route('/')
 
 .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain');
     res.end('PUT operation not supported on /partners');
 })
 
@@ -66,6 +67,7 @@ partnerRouter.route('/:partnerId')
 
 .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain');
     res.end(`POST operation not supported on /partners/${req.params.partnerId}`);
 })  
 

@@ -74,6 +74,7 @@ campsiteRouter.route('/:campsiteId')
 
 .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain');
     res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`)
     ////shoulddn't this be something logged in users can do?////
 })
@@ -147,6 +148,7 @@ campsiteRouter.route('/:campsiteId/comments')
 
 .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain');
     res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`);
 })
 
@@ -203,6 +205,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
 
 .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res) => {
     res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain');
     res.end(`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`);
 }) //this error msg can't be right, why would we have to verify user/ admin just to say 'you cannot pass"? There is no reason to verify people, the reason you can't post is that this is an individual comment, so you can't post a comment to a comment
 
@@ -248,7 +251,7 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
 .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
-        const comment = campsites.comments.id(req.params.commentId); 
+        const comment = campsite.comments.id(req.params.commentId); 
             if (campsite && comment) {
                 if (req.user._id.equals(comment.author._id)) {
                     comment.deleteOne();
