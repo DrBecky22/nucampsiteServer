@@ -12,11 +12,11 @@ const userSchema = new Schema({
         type: String,
         default: ''
     },
+    facebookId: String,   //if this is not present from the beginning, all previous users will have null values for this field and it can prevent authentication
     admin: {
         type: Boolean,
         default: false
     }
-
 });
 
 userSchema.plugin(passportLocalMongoose);
