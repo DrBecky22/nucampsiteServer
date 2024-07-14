@@ -48,7 +48,7 @@ app.use(passport.initialize());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));  //this is not a normal line, and it does not need to go in this exact spot... could be at top or bottom of routes list - it has something to do with getting info from the html file - which shouldn't be in this project
 
 app.use('/campsites', campsiteRouter);
 app.use('/partners', partnerRouter);

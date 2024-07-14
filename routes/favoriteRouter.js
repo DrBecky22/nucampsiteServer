@@ -30,15 +30,15 @@ favoriteRouter.route('/')
                     favorite.campsites.push(fav._id);
                 }
             });
-            favorite.save()
-            .then(favorite => {
+            favorite.save()  // using the word save b/c we are using mongoose, if we were't it would be update or updateOne as a mongo method
+            .then(favorite => {  //can use any word to represent the new array of saved favorites
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
-                res.json(favorite);
+                res.json(favorite);  //use whatever word you used in the .then callback function originator
             })
             .catch(err => next(err));
         } else {
-            Favorite.create({user: req.user._id, campsites: req.body})
+            Favorite.create({user: req.user._id, campsites: req.body.map(favorite => favorite._id)})  //this is the first time the user is adding a favorite, and the curly bracers are around the key/values of oject that is being created
             .then(favorite => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -49,9 +49,9 @@ favoriteRouter.route('/')
     })
     .catch(err => next(err));
 })
-.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => { // PUT operation not supported          
+.put(cors.corsWithOptions, authenticate.verifyUser, (req, res) => { // PUT operation not supported - would be OK to skip the cors and authenticate middleware here, and would probs be more polite        
     res.statusCode = 403;
-    res.end('PUT operation not supported on /favorites');
+    res.send('PUT operation not supported on /favorites');  //skipped setting the header by using .send - which has implicit headers
 }
 )
 .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {    
@@ -78,7 +78,8 @@ favoriteRouter.route('/:campsiteId')
 .options(cors.corsWithOptions, (req, res) => res.sendStatus(200))   // preflight request
 .get(cors.cors, authenticate.verifyUser, (req, res, next) => {   // GET operation not supported
     res.statusCode = 403;
-    res.end(`GET operation not supported on /favorites/${req.params.campsiteId}`);
+    res.setHeader('Content-Type', 'text/plain');
+    res.end(`GET operation not supported on /favorites/${req.params.campsiteId}`);  //params is used when the information comes as part of the route (instead of the body)
 })      
 .post(cors.corsWithOptions, authenticate.verifyUser, (req, res) => { 
     Favorite.findOne({user: req.user._id})
@@ -112,6 +113,7 @@ favoriteRouter.route('/:campsiteId')
 })
 .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
     res.statusCode = 403;
+    res.setHeader('Content-Type', 'text/plain');
     res.end(`POST operation not supported on /favorites/${req.params.campsiteId}`);
 })
 
